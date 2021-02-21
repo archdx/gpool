@@ -46,6 +46,33 @@ func (g *G) park() {
 	}
 }
 
+type GGroup struct {
+	wg sync.WaitGroup
+
+	gList []*G
+}
+
+func (gr *GGroup) Exec(fn func()) {
+	fnWrapper := func() { fn(); gr.wg.Done() }
+
+	gr.wg.Add(len(gr.gList))
+
+	for _, g := range gr.gList {
+		g.fnCh <- fnWrapper
+	}
+}
+
+func (gr *GGroup) WaitAndRelease() {
+	gr.wg.Wait()
+	gr.Release()
+}
+
+func (gr *GGroup) Release() {
+	for _, g := range gr.gList {
+		g.Release()
+	}
+}
+
 type Pool struct {
 	wg sync.WaitGroup
 
@@ -72,6 +99,18 @@ func (p *Pool) G() *G {
 	p.mu.Unlock()
 
 	return g
+}
+
+func (p *Pool) GGroup(size int) *GGroup {
+	gr := GGroup{
+		gList: make([]*G, 0, size),
+	}
+
+	for i := 0; i < size; i++ {
+		gr.gList = append(gr.gList, p.G())
+	}
+
+	return &gr
 }
 
 type Stats struct {
