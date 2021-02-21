@@ -1,6 +1,7 @@
 package gpool
 
 import (
+	"sync"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -12,8 +13,13 @@ func TestPoolG(t *testing.T) {
 	g := pool.G()
 	defer g.Release()
 
+	var wg sync.WaitGroup
 	var called bool
-	g.Exec(func() { called = true })
+
+	wg.Add(1)
+	g.Exec(func() { called = true; wg.Done() })
+
+	wg.Wait()
 
 	assert.True(t, called)
 }
