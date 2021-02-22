@@ -10,6 +10,7 @@ import (
 
 func TestPoolG(t *testing.T) {
 	pool := NewPool(10)
+	defer pool.Close()
 
 	g := pool.G()
 	defer g.Release()
@@ -27,6 +28,7 @@ func TestPoolG(t *testing.T) {
 
 func TestPoolGGroup(t *testing.T) {
 	pool := NewPool(10)
+	defer pool.Close()
 
 	gr := pool.GGroup(10)
 
@@ -40,6 +42,7 @@ func TestPoolGGroup(t *testing.T) {
 
 func TestPoolStats(t *testing.T) {
 	pool := NewPool(10)
+	defer pool.Close()
 
 	g := pool.G()
 	defer g.Release()
