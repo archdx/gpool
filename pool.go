@@ -6,14 +6,13 @@ import (
 )
 
 type G struct {
-	wg *sync.WaitGroup
-
 	gCh  chan *G
 	fnCh chan func()
 
 	releaseCh   chan struct{}
 	releaseHook func()
 
+	wg     *sync.WaitGroup
 	stopCh chan struct{}
 }
 
@@ -74,8 +73,6 @@ func (gr *GGroup) Release() {
 }
 
 type Pool struct {
-	wg sync.WaitGroup
-
 	gCh chan *G
 
 	mu           sync.RWMutex
@@ -83,6 +80,7 @@ type Pool struct {
 	idle         int
 	waitDuration time.Duration
 
+	wg     sync.WaitGroup
 	stopCh chan struct{}
 }
 
